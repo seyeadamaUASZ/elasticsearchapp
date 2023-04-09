@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -77,6 +78,16 @@ public class VehicleService {
             LOG.error(e.getMessage(), e);
             return null;
         }
+    }
+
+    public List<Vehicle> getAllVehiclesCreatedSince(final Date date){
+        final SearchRequest request=
+                SearchUtil.buildSearchRequest(
+                        Indices.VEHICLE_INDEX,
+                        "created",
+                        date
+                );
+        return searchInternal(request);
     }
 
     private List<Vehicle> searchInternal(final SearchRequest request) {
