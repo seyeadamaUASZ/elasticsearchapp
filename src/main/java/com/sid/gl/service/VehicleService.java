@@ -90,6 +90,16 @@ public class VehicleService {
         return searchInternal(request);
     }
 
+    public List<Vehicle> getAllVehicleCreated(final SearchRequestDTO dto,final Date date){
+        final SearchRequest request=
+                SearchUtil.buildSearchRequest(
+                        Indices.VEHICLE_INDEX,
+                        dto,
+                        date
+                );
+        return searchInternal(request);
+    }
+
     private List<Vehicle> searchInternal(final SearchRequest request) {
         if (request == null) {
             LOG.error("Failed to build search request");
