@@ -16,19 +16,16 @@ public class SearchUtil {
 
     public static SearchRequest buildSearchRequest(final String indexName, final SearchRequestDTO dto) {
         try {
-            SearchSourceBuilder builder =
-                    new SearchSourceBuilder()
-                            .postFilter(getQueryBuilder(dto));
+            final int page = dto.getPage();
+            final int size = dto.getSize();
+            final int from = page <= 0 ? 0 : page * size;
 
-            if (dto.getSortBy() != null) {
-                builder = builder.sort(
-                        dto.getSortBy(),
-                        dto.getOrder() != null ? dto.getOrder() : SortOrder.ASC
-                );
-            }
-            final SearchRequest request = new SearchRequest(indexName);
-            request.source(builder);
-            return request;
+            SearchSourceBuilder builder = new SearchSourceBuilder()
+                    .from(from)
+                    .size(size)
+                    .postFilter(getQueryBuilder(dto));
+
+            return getSearchRequest(indexName, dto, builder);
         } catch (final Exception e) {
             e.printStackTrace();
             return null;
@@ -95,21 +92,25 @@ public class SearchUtil {
             SearchSourceBuilder builder = new SearchSourceBuilder()
                     .postFilter(boolQuery);
 
-            if (dto.getSortBy() != null) {
-                builder = builder.sort(
-                        dto.getSortBy(),
-                        dto.getOrder() != null ? dto.getOrder() : SortOrder.ASC
-                );
-            }
-
-            final SearchRequest request = new SearchRequest(indexName);
-            request.source(builder);
-
-            return request;
+            return getSearchRequest(indexName, dto, builder);
         } catch (final Exception e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private static SearchRequest getSearchRequest(String indexName, SearchRequestDTO dto, SearchSourceBuilder builder) {
+        if (dto.getSortBy() != null) {
+            builder = builder.sort(
+                    dto.getSortBy(),
+                    dto.getOrder() != null ? dto.getOrder() : SortOrder.ASC
+            );
+        }
+
+        final SearchRequest request = new SearchRequest(indexName);
+        request.source(builder);
+
+        return request;
     }
 
     private static QueryBuilder getQueryBuilder(final String field, final Date date) {
